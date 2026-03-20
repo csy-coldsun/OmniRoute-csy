@@ -98,22 +98,42 @@ export default function AntigravityToolCard({
         (apiKeys?.length > 0 ? apiKeys[0].key : null) ||
         (!cloudEnabled ? "sk_omniroute" : null);
 
+      console.log("[MITM Debug] Starting with:", {
+        hasKey: !!keyToUse,
+        keyPrefix: keyToUse?.substring(0, 8),
+        cloudEnabled,
+        hasPassword: !!password,
+        isWindows,
+      });
+
+      if (!keyToUse) {
+        throw new Error(
+          "No API key available. Please create one in API Manager or disable cloud sync."
+        );
+      }
+
       const res = await fetch("/api/cli-tools/antigravity-mitm", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ apiKey: keyToUse, sudoPassword: password }),
       });
 
+      console.log("[MITM Debug] Response status:", res.status);
+
       const data = await res.json();
+      console.log("[MITM Debug] Response data:", data);
+
       if (res.ok) {
         setMessage({ type: "success", text: t("mitmStarted") });
         setShowPasswordModal(false);
         setSudoPassword("");
         fetchStatus();
       } else {
+        console.error("[MITM Debug] Server error:", data.error);
         setMessage({ type: "error", text: data.error || t("failedStart") });
       }
     } catch (error) {
+      console.error("[MITM Debug] Client error:", error);
       setMessage({ type: "error", text: error.message });
     } finally {
       setLoading(false);

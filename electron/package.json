@@ -1,14 +1,14 @@
 {
-  "name": "omniroute-desktop",
-  "version": "2.3.13",
-  "description": "OmniRoute Desktop Application",
+  "name": "tradio-route-desktop",
+  "version": "2.8.0",
+  "description": "TradioRoute Desktop Application",
   "main": "main.js",
   "author": {
-    "name": "OmniRoute Team",
-    "email": "support@omniroute.online"
+    "name": "TradioRoute Team",
+    "email": "support@TradioRoute.online"
   },
   "license": "MIT",
-  "homepage": "https://omniroute.online",
+  "homepage": "https://ai.TradioRoute",
   "scripts": {
     "start": "electron .",
     "dev": "electron . --no-sandbox",
@@ -29,9 +29,9 @@
     "electron-builder": "^25.1.8"
   },
   "build": {
-    "appId": "online.omniroute.desktop",
-    "productName": "OmniRoute",
-    "copyright": "Copyright © 2025 OmniRoute",
+    "appId": "online.TradioRoute.desktop",
+    "productName": "TradioRoute",
+    "copyright": "Copyright © 2025 TradioRoute",
     "directories": {
       "output": "dist-electron",
       "buildResources": "assets"
@@ -39,7 +39,7 @@
     "publish": {
       "provider": "github",
       "owner": "diegosouzapw",
-      "repo": "OmniRoute"
+      "repo": "TradioRoute"
     },
     "files": [
       "main.js",

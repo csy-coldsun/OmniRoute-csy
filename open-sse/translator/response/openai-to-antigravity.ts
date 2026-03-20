@@ -22,6 +22,7 @@ type AntigravityUsageMetadata = {
 //   data: {"response":{"candidates":[{"content":{"role":"model","parts":[...]}, "finishReason":"STOP"}], "usageMetadata":{...}, "modelVersion":"...", "responseId":"..."}}
 // Tool calls: OpenAI sends incremental args across chunks → accumulate and emit ONCE at finish
 export function openaiToAntigravityResponse(chunk, state) {
+  console.log("openaiToAntigravityResponse", chunk);
   if (!chunk) return null;
 
   const choice = chunk.choices?.[0];

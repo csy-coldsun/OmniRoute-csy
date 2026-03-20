@@ -1,6 +1,6 @@
 # Release Checklist
 
-Use this checklist before tagging or publishing a new OmniRoute release.
+Use this checklist before tagging or publishing a new TradioRoute release.
 
 ## Version and Changelog
 

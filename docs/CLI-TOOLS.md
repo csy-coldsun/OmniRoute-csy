@@ -1,7 +1,7 @@
-# CLI Tools Setup Guide — OmniRoute
+# CLI Tools Setup Guide — TradioRoute
 
 This guide explains how to install and configure all supported AI coding CLI tools
-to use **OmniRoute** as the unified backend, giving you centralized key management,
+to use **TradioRoute** as the unified backend, giving you centralized key management,
 cost tracking, model switching, and request logging across every tool.
 
 ---

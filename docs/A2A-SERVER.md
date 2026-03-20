@@ -1,6 +1,6 @@
-# OmniRoute A2A Server Documentation
+# TradioRoute A2A Server Documentation
 
-> Agent-to-Agent Protocol v0.3 — OmniRoute as an intelligent routing agent
+> Agent-to-Agent Protocol v0.3 — TradioRoute as an intelligent routing agent
 
 ## Agent Discovery
 
@@ -8,7 +8,7 @@
 curl http://localhost:20128/.well-known/agent.json
 ```
 
-Returns the Agent Card describing OmniRoute's capabilities, skills, and authentication requirements.
+Returns the Agent Card describing TradioRoute's capabilities, skills, and authentication requirements.
 
 ---
 
@@ -17,7 +17,7 @@ Returns the Agent Card describing OmniRoute's capabilities, skills, and authenti
 All `/a2a` requests require an API key via the `Authorization` header:
 
 ```
-Authorization: Bearer YOUR_OMNIROUTE_API_KEY
+Authorization: Bearer YOUR_TradioRoute_API_KEY
 ```
 
 If no API key is configured on the server, authentication is bypassed.

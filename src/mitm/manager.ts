@@ -24,11 +24,9 @@ export function clearCachedPassword() {
 }
 
 const PID_FILE = path.join(resolveDataDir(), "mitm", ".mitm.pid");
-const MITM_SERVER_URL = new URL("./server.cjs", import.meta.url);
-const MITM_SERVER_PATH =
-  process.platform === "win32" && MITM_SERVER_URL.pathname.startsWith("/")
-    ? decodeURIComponent(MITM_SERVER_URL.pathname.slice(1))
-    : decodeURIComponent(MITM_SERVER_URL.pathname);
+
+// FIX: Use process.cwd() which always points to project root at runtime
+const MITM_SERVER_PATH = path.join(process.cwd(), "src", "mitm", "server.cjs");
 
 // Check if a PID is alive
 function isProcessAlive(pid) {
@@ -100,40 +98,71 @@ export async function startMitm(apiKey, sudoPassword) {
   }
 
   // 2. Install certificate to system keychain
-  await installCert(sudoPassword, certPath);
+  try {
+    await installCert(sudoPassword, certPath);
+  } catch (certErr) {
+    throw new Error(`Certificate installation failed: ${certErr.message}`);
+  }
 
   // 3. Add DNS entry
-  console.log("Adding DNS entry...");
-  await addDNSEntry(sudoPassword);
+  try {
+    await addDNSEntry(sudoPassword);
+  } catch (dnsErr) {
+    throw new Error(`DNS configuration failed: ${dnsErr.message}`);
+  }
 
   // 4. Start MITM server
-  console.log("Starting MITM server...");
-  serverProcess = spawn(process.execPath, [MITM_SERVER_PATH], {
-    env: {
-      ...process.env,
-      ROUTER_API_KEY: apiKey,
-      NODE_ENV: "production",
-    },
-    detached: false,
-    stdio: ["ignore", "pipe", "pipe"],
-  });
+  console.log("[MITM Manager] Starting MITM server process...");
+  try {
+    // Windows: Add --use-system-ca for better certificate handling
+    const nodeArgs = [];
+    if (process.platform === "win32") {
+      nodeArgs.push("--use-system-ca");
+      console.log("[MITM Manager] Using system CA certificates (Windows)");
+    }
+
+    serverProcess = spawn(process.execPath, [...nodeArgs, MITM_SERVER_PATH], {
+      env: {
+        ...process.env, // 确保继承所有环境变量
+        ROUTER_API_KEY: apiKey,
+        NODE_ENV: "production",
+      },
+      detached: false,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+  } catch (spawnErr) {
+    console.error("[MITM Manager] Spawn failed:", spawnErr);
+    throw new Error(`Failed to spawn MITM process: ${spawnErr.message}`);
+  }
 
   serverPid = serverProcess.pid;
+  console.log("[MITM Manager] Server PID:", serverPid);
 
-  // Save PID to file
-  fs.writeFileSync(PID_FILE, String(serverPid));
+  // Log MITM server output for debugging
+  serverProcess.stdout?.on("data", (data) => {
+    const msg = data.toString().trim();
+    console.log(`[MITM Server] ${msg}`);
 
-  // Log server output
-  serverProcess.stdout.on("data", (data) => {
-    console.log(`[MITM Server] ${data.toString().trim()}`);
+    // Also write to application log
+    try {
+      const logFile = path.join(resolveDataDir(), "logs", "mitm-server.log");
+      fs.appendFileSync(logFile, `[${new Date().toISOString()}] ${msg}\n`);
+    } catch {}
   });
 
-  serverProcess.stderr.on("data", (data) => {
-    console.error(`[MITM Server Error] ${data.toString().trim()}`);
+  serverProcess.stderr?.on("data", (data) => {
+    const msg = data.toString().trim();
+    console.error(`[MITM Server Error] ${msg}`);
+
+    // Also write to application log
+    try {
+      const logFile = path.join(resolveDataDir(), "logs", "mitm-error.log");
+      fs.appendFileSync(logFile, `[${new Date().toISOString()}] ERROR: ${msg}\n`);
+    } catch {}
   });
 
   serverProcess.on("exit", (code) => {
-    console.log(`MITM server exited with code ${code}`);
+    console.log(`[MITM Manager] MITM server exited with code ${code}`);
     serverProcess = null;
     serverPid = null;
 
@@ -173,13 +202,21 @@ export async function startMitm(apiKey, sudoPassword) {
           resolve(false);
         }
       }
+      if (msg.includes("Permission denied")) {
+        clearTimeout(timeout);
+        if (!resolved) {
+          resolved = true;
+          resolve(false);
+        }
+      }
     });
   });
 
   if (!started) {
-    throw new Error("MITM server failed to start (port 443 may be in use)");
+    throw new Error("MITM server failed to start (port 443 may be in use or permission denied)");
   }
 
+  console.log("[MITM Manager] MITM started successfully");
   return {
     running: true,
     pid: serverPid,

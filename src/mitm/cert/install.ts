@@ -61,8 +61,11 @@ export async function installCert(sudoPassword, certPath) {
     return;
   }
 
+  console.log("🔑 Installing certificate..." + process.platform);
   if (IS_WIN) {
     await installCertWindows(certPath);
+  } else if (process.platform === "linux") {
+    await installCertLinux(sudoPassword, certPath);
   } else {
     await installCertMac(sudoPassword, certPath);
   }
@@ -77,6 +80,26 @@ async function installCertMac(sudoPassword, certPath) {
     const msg = error.message?.includes("canceled")
       ? "User canceled authorization"
       : "Certificate install failed";
+    throw new Error(msg);
+  }
+}
+
+async function installCertLinux(sudoPassword, certPath) {
+  // Copy cert to /usr/local/share/ca-certificates/
+  const destPath = "/usr/local/share/ca-certificates/daily-cloudcode-pa.googleapis.com.crt";
+  const copyCommand = `sudo -S cp "${certPath}" "${destPath}"`;
+  const updateCommand = `sudo -S update-ca-certificates`;
+
+  try {
+    await execWithPassword(copyCommand, sudoPassword);
+    console.log(`📋 Copied certificate to: ${destPath}`);
+
+    await execWithPassword(updateCommand, sudoPassword);
+    console.log(`✅ Updated CA certificates (Linux)`);
+  } catch (error) {
+    const msg = error.message?.includes("canceled")
+      ? "User canceled authorization"
+      : `Failed to install certificate on Linux: ${error.message}`;
     throw new Error(msg);
   }
 }

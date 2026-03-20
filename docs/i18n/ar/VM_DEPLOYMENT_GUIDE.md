@@ -2,9 +2,9 @@
 
 ---
 
-# OmniRoute — Guia de Deploy em VM com Cloudflare
+# TradioRoute — Guia de Deploy em VM com Cloudflare
 
-Guia completo para instalar e configurar o OmniRoute em uma VM (VPS) com domínio gerenciado via Cloudflare.
+Guia completo para instalar e configurar o TradioRoute em uma VM (VPS) com domínio gerenciado via Cloudflare.
 
 ---
 
@@ -82,7 +82,7 @@ ufw enable
 
 ---
 
-## 2. Instalar o OmniRoute
+## 2. Instalar o TradioRoute
 
 ### 2.1 Criar diretório de configuração
 

@@ -2,7 +2,7 @@
 
 🌐 **Languages:** 🇺🇸 [English](API_REFERENCE.md) | 🇧🇷 [Português (Brasil)](i18n/pt-BR/API_REFERENCE.md) | 🇪🇸 [Español](i18n/es/API_REFERENCE.md) | 🇫🇷 [Français](i18n/fr/API_REFERENCE.md) | 🇮🇹 [Italiano](i18n/it/API_REFERENCE.md) | 🇷🇺 [Русский](i18n/ru/API_REFERENCE.md) | 🇨🇳 [中文 (简体)](i18n/zh-CN/API_REFERENCE.md) | 🇩🇪 [Deutsch](i18n/de/API_REFERENCE.md) | 🇮🇳 [हिन्दी](i18n/in/API_REFERENCE.md) | 🇹🇭 [ไทย](i18n/th/API_REFERENCE.md) | 🇺🇦 [Українська](i18n/uk-UA/API_REFERENCE.md) | 🇸🇦 [العربية](i18n/ar/API_REFERENCE.md) | 🇯🇵 [日本語](i18n/ja/API_REFERENCE.md) | 🇻🇳 [Tiếng Việt](i18n/vi/API_REFERENCE.md) | 🇧🇬 [Български](i18n/bg/API_REFERENCE.md) | 🇩🇰 [Dansk](i18n/da/API_REFERENCE.md) | 🇫🇮 [Suomi](i18n/fi/API_REFERENCE.md) | 🇮🇱 [עברית](i18n/he/API_REFERENCE.md) | 🇭🇺 [Magyar](i18n/hu/API_REFERENCE.md) | 🇮🇩 [Bahasa Indonesia](i18n/id/API_REFERENCE.md) | 🇰🇷 [한국어](i18n/ko/API_REFERENCE.md) | 🇲🇾 [Bahasa Melayu](i18n/ms/API_REFERENCE.md) | 🇳🇱 [Nederlands](i18n/nl/API_REFERENCE.md) | 🇳🇴 [Norsk](i18n/no/API_REFERENCE.md) | 🇵🇹 [Português (Portugal)](i18n/pt/API_REFERENCE.md) | 🇷🇴 [Română](i18n/ro/API_REFERENCE.md) | 🇵🇱 [Polski](i18n/pl/API_REFERENCE.md) | 🇸🇰 [Slovenčina](i18n/sk/API_REFERENCE.md) | 🇸🇪 [Svenska](i18n/sv/API_REFERENCE.md) | 🇵🇭 [Filipino](i18n/phi/API_REFERENCE.md)
 
-Complete reference for all OmniRoute API endpoints.
+Complete reference for all TradioRoute API endpoints.
 
 ---
 
@@ -38,15 +38,15 @@ Content-Type: application/json
 
 ### Custom Headers
 
-| Header                   | Direction | Description                       |
-| ------------------------ | --------- | --------------------------------- |
-| `X-OmniRoute-No-Cache`   | Request   | Set to `true` to bypass cache     |
-| `X-OmniRoute-Progress`   | Request   | Set to `true` for progress events |
-| `Idempotency-Key`        | Request   | Dedup key (5s window)             |
-| `X-Request-Id`           | Request   | Alternative dedup key             |
-| `X-OmniRoute-Cache`      | Response  | `HIT` or `MISS` (non-streaming)   |
-| `X-OmniRoute-Idempotent` | Response  | `true` if deduplicated            |
-| `X-OmniRoute-Progress`   | Response  | `enabled` if progress tracking on |
+| Header                     | Direction | Description                       |
+| -------------------------- | --------- | --------------------------------- |
+| `X-TradioRoute-No-Cache`   | Request   | Set to `true` to bypass cache     |
+| `X-TradioRoute-Progress`   | Request   | Set to `true` for progress events |
+| `Idempotency-Key`          | Request   | Dedup key (5s window)             |
+| `X-Request-Id`             | Request   | Alternative dedup key             |
+| `X-TradioRoute-Cache`      | Response  | `HIT` or `MISS` (non-streaming)   |
+| `X-TradioRoute-Idempotent` | Response  | `true` if deduplicated            |
+| `X-TradioRoute-Progress`   | Response  | `enabled` if progress tracking on |
 
 ---
 

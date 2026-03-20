@@ -1,9 +1,9 @@
 openapi: 3.1.0
 info:
-  title: OmniRoute API
+  title: TradioRoute API
   version: 2.8.0
   description: |
-    OmniRoute is a local-first AI API proxy router. It provides an OpenAI-compatible
+    TradioRoute is a local-first AI API proxy router. It provides an OpenAI-compatible
     endpoint that routes requests to multiple AI providers with load balancing,
     failover, and usage tracking.
 
@@ -14,7 +14,7 @@ info:
     All proxy endpoints require a Bearer token (API key managed via the dashboard).
     Management endpoints are protected when `requireLogin` is enabled.
   contact:
-    name: OmniRoute
+    name: TradioRoute
   license:
     name: MIT
 

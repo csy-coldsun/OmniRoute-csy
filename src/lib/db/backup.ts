@@ -43,7 +43,7 @@ export function backupDbFile(reason = "auto") {
       return null;
     _lastBackupAt = now;
 
-    const backupDir = DB_BACKUPS_DIR || path.join(DATA_DIR, "db_backups");
+    const backupDir = DB_BACKUPS_DIR || path.join(/*turbopackIgnore: true*/ DATA_DIR, "db_backups");
     if (!fs.existsSync(backupDir)) fs.mkdirSync(backupDir, { recursive: true });
 
     // Shrink check vs latest backup
@@ -53,7 +53,7 @@ export function backupDbFile(reason = "auto") {
       .sort();
     if (existingBackups.length > 0) {
       const latestBackup = existingBackups[existingBackups.length - 1];
-      const latestStat = fs.statSync(path.join(backupDir, latestBackup));
+      const latestStat = fs.statSync(path.join(/*turbopackIgnore: true*/ backupDir, latestBackup));
       if (latestStat.size > 4096 && stat.size < latestStat.size * 0.5) {
         console.warn(`[DB] Backup SKIPPED — DB shrank from ${latestStat.size}B to ${stat.size}B`);
         return null;
@@ -61,7 +61,10 @@ export function backupDbFile(reason = "auto") {
     }
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-    const backupFile = path.join(backupDir, `db_${timestamp}_${reason}.sqlite`);
+    const backupFile = path.join(
+      /*turbopackIgnore: true*/ backupDir,
+      `db_${timestamp}_${reason}.sqlite`
+    );
 
     // Use native SQLite backup API for consistency
     const db = getDbInstance();
@@ -84,7 +87,7 @@ export function backupDbFile(reason = "auto") {
       let smallestSize = Infinity;
       for (let i = 0; i < files.length - 1; i++) {
         try {
-          const fStat = fs.statSync(path.join(backupDir, files[i]));
+          const fStat = fs.statSync(path.join(/*turbopackIgnore: true*/ backupDir, files[i]));
           if (fStat.size < smallestSize) {
             smallestSize = fStat.size;
             smallestIdx = i;
@@ -95,7 +98,7 @@ export function backupDbFile(reason = "auto") {
         }
       }
       try {
-        fs.unlinkSync(path.join(backupDir, files[smallestIdx]));
+        fs.unlinkSync(path.join(/*turbopackIgnore: true*/ backupDir, files[smallestIdx]));
       } catch {
         /* gone */
       }
@@ -113,7 +116,7 @@ export function backupDbFile(reason = "auto") {
 // ──────────────── List Backups ────────────────
 
 export async function listDbBackups() {
-  const backupDir = DB_BACKUPS_DIR || path.join(DATA_DIR, "db_backups");
+  const backupDir = DB_BACKUPS_DIR || path.join(/*turbopackIgnore: true*/ DATA_DIR, "db_backups");
   try {
     if (!fs.existsSync(backupDir)) return [];
 
@@ -124,7 +127,7 @@ export async function listDbBackups() {
       .reverse();
 
     return entries.map((filename) => {
-      const filePath = path.join(backupDir, filename);
+      const filePath = path.join(/*turbopackIgnore: true*/ backupDir, filename);
       const stat = fs.statSync(filePath);
       const match = filename.match(/^db_(.+?)_([^.]+)\.sqlite$/);
       const reason = match ? match[2] : "unknown";
@@ -158,7 +161,7 @@ export async function listDbBackups() {
 // ──────────────── Restore Backup ────────────────
 
 export async function restoreDbBackup(backupId: string) {
-  const backupDir = DB_BACKUPS_DIR || path.join(DATA_DIR, "db_backups");
+  const backupDir = DB_BACKUPS_DIR || path.join(/*turbopackIgnore: true*/ DATA_DIR, "db_backups");
 
   // Validate format: must be db_<timestamp>_<reason>.sqlite, no path separators
   if (
@@ -170,11 +173,11 @@ export async function restoreDbBackup(backupId: string) {
     throw new Error("Invalid backup ID");
   }
 
-  const backupPath = path.resolve(backupDir, backupId);
+  const backupPath = path.resolve(/*turbopackIgnore: true*/ backupDir, backupId);
   // Prevent path traversal: resolved path must stay within backupDir
   if (
-    !backupPath.startsWith(path.resolve(backupDir) + path.sep) &&
-    backupPath !== path.resolve(backupDir)
+    !backupPath.startsWith(path.resolve(/*turbopackIgnore: true*/ backupDir) + path.sep) &&
+    backupPath !== path.resolve(/*turbopackIgnore: true*/ backupDir)
   ) {
     throw new Error("Invalid backup ID: path traversal detected");
   }

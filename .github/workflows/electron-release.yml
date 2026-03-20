@@ -1,4 +1,4 @@
-name: Build Electron Desktop App
+name: Build TradioRoute Desktop App
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Release version (e.g., v1.6.8)"
+        description: "Release version (e.g., v2.8.0)"
         required: true
         type: string
 
@@ -36,37 +36,20 @@ jobs:
           fi
 
           if [[ ! "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Error: Invalid version format. Expected: v1.6.8"
+            echo "Error: Invalid version format. Expected: v2.8.0"
             exit 1
           fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "✓ Valid version: $VERSION"
 
-  build:
-    name: Build Electron (${{ matrix.platform }})
+  build-windows:
+    name: Build Windows (${{ matrix.arch }})
     needs: validate
-    runs-on: ${{ matrix.runner }}
+    runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - platform: windows
-            runner: windows-latest
-            target: win
-            ext: .exe
-          - platform: macos-intel
-            runner: macos-15-intel
-            target: mac-x64
-            ext: .dmg
-          - platform: macos-arm64
-            runner: macos-latest
-            target: mac-arm64
-            ext: -arm64.dmg
-          - platform: linux
-            runner: ubuntu-latest
-            target: linux
-            ext: .AppImage
-            deb_ext: .deb
+        arch: [x64]
 
     steps:
       - name: Checkout
@@ -82,9 +65,9 @@ jobs:
         uses: actions/cache@v5
         with:
           path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          key: win-${{ hashFiles('package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            win-
 
       - name: Install dependencies
         run: npm ci
@@ -107,54 +90,272 @@ jobs:
           "
           echo "✓ electron/package.json version set to $VERSION_NO_V"
 
-      - name: Install fpm (Linux .deb packaging tool)
-        if: matrix.platform == 'linux'
+      - name: Install Electron dependencies
+        working-directory: electron
+        run: npm install --no-audit --no-fund
+
+      - name: Build Windows x64
+        working-directory: electron
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run build:win
+
+      - name: Collect Windows artifacts
+        shell: bash
+        run: |
+          mkdir -p release-assets
+          cd electron/dist-electron
+
+          # Copy NSIS installer
+          for file in *Setup*.exe; do
+            [ -f "$file" ] && cp "$file" ../../release-assets/
+          done
+
+          # Copy portable standalone
+          for file in *.exe; do
+            case "$file" in *Setup*) continue ;; esac
+            [ -f "$file" ] && cp "$file" "../../release-assets/TradioRoute-portable.exe"
+          done
+
+          # Copy blockmap files
+          for file in *.blockmap; do
+            [ -f "$file" ] && cp "$file" ../../release-assets/
+          done
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: tradio-route-windows-x64
+          path: release-assets/
+
+  build-macos-intel:
+    name: Build macOS Intel
+    needs: validate
+    runs-on: macos-15-intel
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Cache node_modules
+        uses: actions/cache@v5
+        with:
+          path: node_modules
+          key: mac-intel-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            mac-intel-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Next.js standalone
+        env:
+          JWT_SECRET: ci-build-secret-with-sufficient-length-for-validation
+        run: npm run build
+
+      - name: Sync version in electron/package.json
+        shell: bash
+        run: |
+          VERSION="${{ needs.validate.outputs.version }}"
+          VERSION_NO_V="${VERSION#v}"
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('electron/package.json'));
+            pkg.version = '$VERSION_NO_V';
+            fs.writeFileSync('electron/package.json', JSON.stringify(pkg, null, 2) + '\\n');
+          "
+          echo "✓ electron/package.json version set to $VERSION_NO_V"
+
+      - name: Install dmg-license
+        run: npm install --save-dev dmg-license
+
+      - name: Install Electron dependencies
+        working-directory: electron
+        run: npm install --no-audit --no-fund
+
+      - name: Build macOS x64
+        working-directory: electron
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run build:mac-x64
+
+      - name: Collect macOS Intel artifacts
+        shell: bash
+        run: |
+          mkdir -p release-assets
+          cd electron/dist-electron
+          for file in *-x64.dmg; do
+            [ -f "$file" ] && cp "$file" ../../release-assets/
+          done
+
+      - name: Upload macOS Intel artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: tradio-route-macos-intel
+          path: release-assets/
+
+  build-macos-arm64:
+    name: Build macOS ARM64 (Apple Silicon)
+    needs: validate
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Cache node_modules
+        uses: actions/cache@v5
+        with:
+          path: node_modules
+          key: mac-arm-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            mac-arm-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Next.js standalone
+        env:
+          JWT_SECRET: ci-build-secret-with-sufficient-length-for-validation
+        run: npm run build
+
+      - name: Sync version in electron/package.json
+        shell: bash
+        run: |
+          VERSION="${{ needs.validate.outputs.version }}"
+          VERSION_NO_V="${VERSION#v}"
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('electron/package.json'));
+            pkg.version = '$VERSION_NO_V';
+            fs.writeFileSync('electron/package.json', JSON.stringify(pkg, null, 2) + '\\n');
+          "
+          echo "✓ electron/package.json version set to $VERSION_NO_V"
+
+      - name: Install dmg-license
+        run: npm install --save-dev dmg-license
+
+      - name: Install Electron dependencies
+        working-directory: electron
+        run: npm install --no-audit --no-fund
+
+      - name: Build macOS ARM64
+        working-directory: electron
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run build:mac-arm64
+
+      - name: Collect macOS ARM64 artifacts
+        shell: bash
+        run: |
+          mkdir -p release-assets
+          cd electron/dist-electron
+          for file in *-arm64.dmg; do
+            [ -f "$file" ] && cp "$file" ../../release-assets/
+          done
+
+      - name: Upload macOS ARM64 artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: tradio-route-macos-arm64
+          path: release-assets/
+
+  build-linux:
+    name: Build Linux
+    needs: validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Cache node_modules
+        uses: actions/cache@v5
+        with:
+          path: node_modules
+          key: linux-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            linux-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Next.js standalone
+        env:
+          JWT_SECRET: ci-build-secret-with-sufficient-length-for-validation
+        run: npm run build
+
+      - name: Sync version in electron/package.json
+        shell: bash
+        run: |
+          VERSION="${{ needs.validate.outputs.version }}"
+          VERSION_NO_V="${VERSION#v}"
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('electron/package.json'));
+            pkg.version = '$VERSION_NO_V';
+            fs.writeFileSync('electron/package.json', JSON.stringify(pkg, null, 2) + '\\n');
+          "
+          echo "✓ electron/package.json version set to $VERSION_NO_V"
+
+      - name: Install fpm (for .deb packaging)
         run: sudo gem install fpm --no-document
 
       - name: Install Electron dependencies
         working-directory: electron
         run: npm install --no-audit --no-fund
 
-      - name: Build Electron for ${{ matrix.platform }}
+      - name: Build Linux
         working-directory: electron
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run build:${{ matrix.target }}
+        run: npm run build:linux
 
-      - name: Collect installers
+      - name: Collect Linux artifacts
         shell: bash
         run: |
           mkdir -p release-assets
           cd electron/dist-electron
-          # Copy only installer files for this platform
-          for file in *${{ matrix.ext }}; do
+
+          # Copy AppImage
+          for file in *.AppImage; do
             [ -f "$file" ] && cp "$file" ../../release-assets/
           done
-          # Linux: also copy .deb package
-          if [ "${{ matrix.platform }}" = "linux" ]; then
-            for file in *.deb; do
-              [ -f "$file" ] && cp "$file" ../../release-assets/
-            done
-          fi
-          # Windows: also copy portable standalone exe as OmniRoute.exe
-          if [ "${{ matrix.platform }}" = "windows" ]; then
-            for file in *.exe; do
-              # Skip the NSIS installer (contains "Setup")
-              case "$file" in *Setup*) continue ;; esac
-              [ -f "$file" ] && cp "$file" "../../release-assets/OmniRoute.exe" && break
-            done
-          fi
 
-      - name: Upload artifacts
+          # Copy .deb package
+          for file in *.deb; do
+            [ -f "$file" ] && cp "$file" ../../release-assets/
+          done
+
+      - name: Upload Linux artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: electron-${{ matrix.platform }}
+          name: tradio-route-linux
           path: release-assets/
 
   release:
     name: Create Release
-    needs: [validate, build]
+    needs: [validate, build-windows, build-macos-intel, build-macos-arm64, build-linux]
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -170,12 +371,12 @@ jobs:
       - name: Create source archives
         run: |
           # Create source code archives (excluding dev dependencies and build artifacts)
-          export TARBALL="OmniRoute-${{ needs.validate.outputs.version }}.source.tar.gz"
-          export ZIPBALL="OmniRoute-${{ needs.validate.outputs.version }}.source.zip"
+          export TARBALL="TradioRoute-${{ needs.validate.outputs.version }}.source.tar.gz"
+          export ZIPBALL="TradioRoute-${{ needs.validate.outputs.version }}.source.zip"
 
           # Use git archive for clean source export
-          git archive --format=tar.gz --prefix=OmniRoute-${{ needs.validate.outputs.version }}/ HEAD -o "release-assets/$TARBALL"
-          git archive --format=zip --prefix=OmniRoute-${{ needs.validate.outputs.version }}/ HEAD -o "release-assets/$ZIPBALL"
+          git archive --format=tar.gz --prefix=TradioRoute-${{ needs.validate.outputs.version }}/ HEAD -o "release-assets/$TARBALL"
+          git archive --format=zip --prefix=TradioRoute-${{ needs.validate.outputs.version }}/ HEAD -o "release-assets/$ZIPBALL"
 
           echo "✓ Created source archives:"
           ls -lh "release-assets/$TARBALL" "release-assets/$ZIPBALL"
@@ -187,6 +388,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.validate.outputs.version }}
+          name: TradioRoute ${{ needs.validate.outputs.version }}
           draft: false
           prerelease: false
           generate_release_notes: true

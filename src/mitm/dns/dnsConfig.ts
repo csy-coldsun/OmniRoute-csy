@@ -98,7 +98,12 @@ export async function removeDNSEntry(sudoPassword) {
           else resolve(void 0);
         });
       });
+    } else if (process.platform === "linux") {
+      // Linux: sed -i (no backup extension)
+      const command = `sudo -S sed -i '/${TARGET_HOST}/d' ${HOSTS_FILE}`;
+      await execWithPassword(command, sudoPassword);
     } else {
+      // macOS: sed -i '' (empty backup extension)
       const command = `sudo -S sed -i '' '/${TARGET_HOST}/d' ${HOSTS_FILE}`;
       await execWithPassword(command, sudoPassword);
     }

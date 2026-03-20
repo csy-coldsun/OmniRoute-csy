@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
 /**
- * OmniRoute CLI — Smart AI Router with Auto Fallback
+ * TradioRoute CLI — Smart AI Router with Auto Fallback
  *
  * Usage:
- *   omniroute              Start the server (default port 20128)
- *   omniroute --port 3000  Start on custom port
- *   omniroute --no-open    Start without opening browser
- *   omniroute --mcp        Start MCP server (stdio transport for IDEs)
- *   omniroute --help       Show help
- *   omniroute --version    Show version
+ *   TradioRoute              Start the server (default port 20128)
+ *   TradioRoute --port 3000  Start on custom port
+ *   TradioRoute --no-open    Start without opening browser
+ *   TradioRoute --mcp        Start MCP server (stdio transport for IDEs)
+ *   TradioRoute --help       Show help
+ *   TradioRoute --version    Show version
  */
 
 import { spawn } from "node:child_process";

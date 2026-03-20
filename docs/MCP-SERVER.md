@@ -1,20 +1,20 @@
-# OmniRoute MCP Server Documentation
+# TradioRoute MCP Server Documentation
 
 > Model Context Protocol server with 16 intelligent tools
 
 ## Installation
 
-OmniRoute MCP is built-in. Start it with:
+TradioRoute MCP is built-in. Start it with:
 
 ```bash
-omniroute --mcp
+TradioRoute --mcp
 ```
 
 Or via the open-sse transport:
 
 ```bash
 # HTTP streamable transport (port 20130)
-omniroute --dev  # MCP auto-starts on /mcp endpoint
+TradioRoute --dev  # MCP auto-starts on /mcp endpoint
 ```
 
 ## IDE Configuration
@@ -25,29 +25,29 @@ See [IDE Configs](integrations/ide-configs.md) for Antigravity, Cursor, Copilot,
 
 ## Essential Tools (8)
 
-| Tool                            | Description                              |
-| :------------------------------ | :--------------------------------------- |
-| `omniroute_get_health`          | Gateway health, circuit breakers, uptime |
-| `omniroute_list_combos`         | All configured combos with models        |
-| `omniroute_get_combo_metrics`   | Performance metrics for a specific combo |
-| `omniroute_switch_combo`        | Switch active combo by ID/name           |
-| `omniroute_check_quota`         | Quota status per provider or all         |
-| `omniroute_route_request`       | Send a chat completion through OmniRoute |
-| `omniroute_cost_report`         | Cost analytics for a time period         |
-| `omniroute_list_models_catalog` | Full model catalog with capabilities     |
+| Tool                              | Description                                |
+| :-------------------------------- | :----------------------------------------- |
+| `TradioRoute_get_health`          | Gateway health, circuit breakers, uptime   |
+| `TradioRoute_list_combos`         | All configured combos with models          |
+| `TradioRoute_get_combo_metrics`   | Performance metrics for a specific combo   |
+| `TradioRoute_switch_combo`        | Switch active combo by ID/name             |
+| `TradioRoute_check_quota`         | Quota status per provider or all           |
+| `TradioRoute_route_request`       | Send a chat completion through TradioRoute |
+| `TradioRoute_cost_report`         | Cost analytics for a time period           |
+| `TradioRoute_list_models_catalog` | Full model catalog with capabilities       |
 
 ## Advanced Tools (8)
 
-| Tool                               | Description                                     |
-| :--------------------------------- | :---------------------------------------------- |
-| `omniroute_simulate_route`         | Dry-run routing simulation with fallback tree   |
-| `omniroute_set_budget_guard`       | Session budget with degrade/block/alert actions |
-| `omniroute_set_resilience_profile` | Apply conservative/balanced/aggressive preset   |
-| `omniroute_test_combo`             | Live-test all models in a combo                 |
-| `omniroute_get_provider_metrics`   | Detailed metrics for one provider               |
-| `omniroute_best_combo_for_task`    | Task-fitness recommendation with alternatives   |
-| `omniroute_explain_route`          | Explain a past routing decision                 |
-| `omniroute_get_session_snapshot`   | Full session state: costs, tokens, errors       |
+| Tool                                 | Description                                     |
+| :----------------------------------- | :---------------------------------------------- |
+| `TradioRoute_simulate_route`         | Dry-run routing simulation with fallback tree   |
+| `TradioRoute_set_budget_guard`       | Session budget with degrade/block/alert actions |
+| `TradioRoute_set_resilience_profile` | Apply conservative/balanced/aggressive preset   |
+| `TradioRoute_test_combo`             | Live-test all models in a combo                 |
+| `omniroute_get_provider_metrics`     | Detailed metrics for one provider               |
+| `omniroute_best_combo_for_task`      | Task-fitness recommendation with alternatives   |
+| `omniroute_explain_route`            | Explain a past routing decision                 |
+| `omniroute_get_session_snapshot`     | Full session state: costs, tokens, errors       |
 
 ## Authentication
 

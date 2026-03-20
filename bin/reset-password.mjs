@@ -5,9 +5,9 @@
  *
  * Usage:
  *   node bin/reset-password.mjs
- *   npx omniroute reset-password
+ *   npx TradioRoute reset-password
  *
- * Resets the admin password for OmniRoute.
+ * Resets the admin password for TradioRoute.
  * Prompts for a new password and updates the database directly.
  *
  * @module bin/reset-password
@@ -38,7 +38,7 @@ function hashPassword(password) {
   return createHash("sha256").update(password).digest("hex");
 }
 
-console.log("\n🔑 OmniRoute — Password Reset\n");
+console.log("\n🔑 TradioRoute — Password Reset\n");
 
 async function main() {
   // Check if database exists

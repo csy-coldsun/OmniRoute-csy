@@ -1,6 +1,6 @@
-# OmniRoute — Guia de Deploy em VM com Cloudflare
+# TradioRoute — Guia de Deploy em VM com Cloudflare
 
-Guia completo para instalar e configurar o OmniRoute em uma VM (VPS) com domínio gerenciado via Cloudflare.
+Guia completo para instalar e configurar o TradioRoute em uma VM (VPS) com domínio gerenciado via Cloudflare.
 
 ---
 
@@ -78,18 +78,18 @@ ufw enable
 
 ---
 
-## 2. Instalar o OmniRoute
+## 2. Instalar o TradioRoute
 
 ### 2.1 Criar diretório de configuração
 
 ```bash
-mkdir -p /opt/omniroute
+mkdir -p /opt/TradioRoute
 ```
 
 ### 2.2 Criar arquivo de variáveis de ambiente
 
 ```bash
-cat > /opt/omniroute/.env << 'EOF'
+cat > /opt/TradioRoute/.env << 'EOF'
 # === Segurança ===
 JWT_SECRET=ALTERE-PARA-CHAVE-SECRETA-UNICA-64-CHARS
 INITIAL_PASSWORD=SuaSenhaSegura123!
@@ -113,8 +113,8 @@ BASE_URL=https://llms.seudominio.com
 NEXT_PUBLIC_BASE_URL=https://llms.seudominio.com
 
 # === Cloud Sync (opcional) ===
-# CLOUD_URL=https://cloud.omniroute.online
-# NEXT_PUBLIC_CLOUD_URL=https://cloud.omniroute.online
+# CLOUD_URL=https://cloud.TradioRoute.online
+# NEXT_PUBLIC_CLOUD_URL=https://cloud.TradioRoute.online
 EOF
 ```
 
@@ -123,22 +123,22 @@ EOF
 ### 2.3 Iniciar o container
 
 ```bash
-docker pull diegosouzapw/omniroute:latest
+docker pull diegosouzapw/TradioRoute:latest
 
 docker run -d \
-  --name omniroute \
+  --name TradioRoute \
   --restart unless-stopped \
-  --env-file /opt/omniroute/.env \
+  --env-file /opt/TradioRoute/.env \
   -p 20128:20128 \
-  -v omniroute-data:/app/data \
-  diegosouzapw/omniroute:latest
+  -v TradioRoute-data:/app/data \
+  diegosouzapw/TradioRoute:latest
 ```
 
 ### 2.4 Verificar se está rodando
 
 ```bash
-docker ps | grep omniroute
-docker logs omniroute --tail 20
+docker ps | grep TradioRoute
+docker logs TradioRoute --tail 20
 ```
 
 Deve exibir: `[DB] SQLite database ready` e `listening on port 20128`.

@@ -1,0 +1,28 @@
+# TradioRoute 跨平台打包指南
+
+本指南介绍如何为 **Windows、macOS、Linux** 三个平台打包 OmniRoute 桌面应用。
+
+---
+
+## 📋 前置要求
+
+### 系统要求
+
+| 平台 | 最低配置 | 推荐配置 |
+|------|---------|---------|
+| **Windows** | Windows 10 (64-bit), 4GB RAM, 2GB 磁盘 | Windows 11, 8GB RAM, 5GB 磁盘 |
+| **macOS** | macOS 10.15+, 4GB RAM, 2GB 磁盘 | macOS 12+, 8GB RAM, 5GB 磁盘 |
+| **Linux** | Ubuntu 20.04+/Debian 11+, 4GB RAM, 2GB 磁盘 | Ubuntu 22.04+, 8GB RAM, 5GB 磁盘 |
+
+### 软件要求
+
+- **Node.js**: 18.x - 23.x（推荐 v20）
+- **npm**: 9.x 或更高版本
+- **Git**: 用于版本控制
+
+---
+
+## 🚀 快速开始
+
+### 1. 安装依赖
+

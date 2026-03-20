@@ -8,8 +8,38 @@ const os = require("os");
 // Resolve data directory — mirrors src/lib/dataPaths.ts logic.
 // This file runs as a standalone CommonJS process and cannot import the ES module.
 function getDataDir() {
-  if (process.env.DATA_DIR) return path.resolve(process.env.DATA_DIR.trim());
-  return path.join(os.homedir(), ".omniroute");
+  // 1. Check environment variable (works on all platforms)
+  if (process.env.DATA_DIR) {
+    return path.resolve(process.env.DATA_DIR.trim());
+  }
+  
+  // 2. Use same logic as dataPaths.ts getDefaultDataDir()
+  const homeDir = os.homedir();
+  const appName = "omniroute";
+  
+  // Windows: Use APPDATA
+  if (process.platform === "win32") {
+    const appData = process.env.APPDATA || path.join(homeDir, "AppData", "Roaming");
+    return path.join(appData, appName);
+  }
+  
+  // Linux: Support XDG when explicitly configured
+  if (process.platform === "linux") {
+    const xdgConfigHome = process.env.XDG_CONFIG_HOME;
+    if (xdgConfigHome && typeof xdgConfigHome === "string" && xdgConfigHome.trim()) {
+      return path.resolve(xdgConfigHome.trim(), appName);
+    }
+    // Fallback to legacy .omniroute on Linux
+    return path.join(homeDir, `.${appName}`);
+  }
+  
+  // macOS: Support XDG or fallback to legacy
+  const xdgConfigHome = process.env.XDG_CONFIG_HOME;
+  if (xdgConfigHome && typeof xdgConfigHome === "string" && xdgConfigHome.trim()) {
+    return path.resolve(xdgConfigHome.trim(), appName);
+  }
+  
+  return path.join(homeDir, `.${appName}`);
 }
 
 // Configuration
@@ -199,7 +229,18 @@ async function passthrough(req, res, bodyBuffer) {
 async function intercept(req, res, bodyBuffer, mappedModel) {
   try {
     const body = JSON.parse(bodyBuffer.toString());
-    body.model = mappedModel;
+    
+    // Normalize model name to lowercase (provider lookup is case-sensitive)
+    const normalizedModel = mappedModel.toLowerCase();
+    body.model = normalizedModel;
+    
+    // FORCE streaming mode for Gemini/Antigravity requests
+    const expectsGeminiFormat = req.url.includes("generateContent") || req.url.includes("streamGenerateContent");
+    if (expectsGeminiFormat) {
+      body.stream = true;
+    }
+    
+    console.log(`🚀 Intercepting ${normalizedModel} | stream: ${body.stream}`);
 
     const response = await fetch(ROUTER_URL, {
       method: "POST",
@@ -215,6 +256,7 @@ async function intercept(req, res, bodyBuffer, mappedModel) {
       throw new Error(`OmniRoute ${response.status}: ${errText}`);
     }
 
+    // Direct pass-through - OmniRoute already did the conversion
     res.writeHead(200, {
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache",
@@ -224,15 +266,27 @@ async function intercept(req, res, bodyBuffer, mappedModel) {
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
+    let chunkCount = 0;
 
     while (true) {
       const { done, value } = await reader.read();
       if (done) {
+        console.log(`[MITM] Stream ended. Total chunks: ${chunkCount}`);
         res.end();
         break;
       }
-      res.write(decoder.decode(value, { stream: true }));
+      
+      const text = decoder.decode(value, { stream: true });
+      chunkCount++;
+      
+      // Log first few and last chunks for debugging
+      if (chunkCount <= 3 || text.includes('[DONE]')) {
+        console.log(`[MITM] Pass-through chunk ${chunkCount}:`, text.substring(0, 200));
+      }
+      
+      res.write(text);
     }
+    
   } catch (error) {
     console.error(`❌ ${error.message}`);
     if (!res.headersSent) res.writeHead(500, { "Content-Type": "application/json" });
@@ -241,6 +295,15 @@ async function intercept(req, res, bodyBuffer, mappedModel) {
 }
 
 const server = https.createServer(sslOptions, async (req, res) => {
+  console.log(`\n========== [NEW REQUEST] ==========`);
+  console.log(`Time: ${new Date().toISOString()}`);
+  console.log(`Method: ${req.method}`);
+  console.log(`URL: ${req.url}`);
+  console.log(`Headers:`, JSON.stringify(req.headers, null, 2));
+  console.log(`Remote Address: ${req.socket.remoteAddress}`);
+  console.log(`Local Address: ${req.socket.localAddress}:${req.socket.localPort}`);
+  console.log(`=================================\n`);
+  
   const bodyBuffer = await collectBodyRaw(req);
 
   // Save request log if enabled

@@ -12,9 +12,9 @@ RUN mkdir -p /app/data && npm run build
 FROM node:22-bookworm-slim AS runner-base
 WORKDIR /app
 
-LABEL org.opencontainers.image.title="omniroute" \
+LABEL org.opencontainers.image.title="tradioroute" \
   org.opencontainers.image.description="Unified AI proxy — route any LLM through one endpoint" \
-  org.opencontainers.image.url="https://omniroute.online" \
+  org.opencontainers.image.url="" \
   org.opencontainers.image.source="https://github.com/diegosouzapw/OmniRoute" \
   org.opencontainers.image.licenses="MIT"
 

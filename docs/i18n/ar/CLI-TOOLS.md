@@ -1,11 +1,11 @@
 🌐 **Languages:** 🇺🇸 [English](../../CLI-TOOLS.md) · 🇧🇷 [pt-BR](../pt-BR/CLI-TOOLS.md) · 🇪🇸 [es](../es/CLI-TOOLS.md) · 🇫🇷 [fr](../fr/CLI-TOOLS.md) · 🇩🇪 [de](../de/CLI-TOOLS.md) · 🇮🇹 [it](../it/CLI-TOOLS.md) · 🇷🇺 [ru](../ru/CLI-TOOLS.md) · 🇨🇳 [zh-CN](../zh-CN/CLI-TOOLS.md) · 🇯🇵 [ja](../ja/CLI-TOOLS.md) · 🇰🇷 [ko](../ko/CLI-TOOLS.md) · 🇸🇦 [ar](../ar/CLI-TOOLS.md)
 
-# دليل إعداد أدوات CLI — OmniRoute
+# دليل إعداد أدوات CLI — TradioRoute
 
-يشرح هذا الدليل كيفية تثبيت وتهيئة جميع أدوات CLI المدعومة لاستخدام **OmniRoute** كخلفية موحدة.
+يشرح هذا الدليل كيفية تثبيت وتهيئة جميع أدوات CLI المدعومة لاستخدام **TradioRoute** كخلفية موحدة.
 
 This guide explains how to install and configure all supported AI coding CLI tools
-to use **OmniRoute** as the unified backend, giving you centralized key management,
+to use **TradioRoute** as the unified backend, giving you centralized key management,
 cost tracking, model switching, and request logging across every tool.
 
 ---
@@ -15,10 +15,10 @@ cost tracking, model switching, and request logging across every tool.
 ```
 Claude / Codex / Gemini CLI / OpenCode / Cline / KiloCode / Continue / Kiro CLI
            │
-           ▼  (all point to OmniRoute)
+           ▼  (all point to TradioRoute)
     http://YOUR_SERVER:20128/v1
            │
-           ▼  (OmniRoute routes to the right provider)
+           ▼  (TradioRoute routes to the right provider)
     Anthropic / OpenAI / Gemini / DeepSeek / Groq / Mistral / ...
 ```
 
@@ -44,14 +44,14 @@ Claude / Codex / Gemini CLI / OpenCode / Cline / KiloCode / Continue / Kiro CLI
 | **Continue**     | guide-based         | VS Code ext       | VS Code        |
 | **Kiro CLI**     | `kiro-cli`          | CLI               | curl installer |
 | **Cursor**       | `cursor`            | Desktop app       | Download       |
-| **Droid**        | web-based           | Built-in agent    | OmniRoute      |
-| **OpenClaw**     | web-based           | Built-in agent    | OmniRoute      |
+| **Droid**        | web-based           | Built-in agent    | TradioRoute    |
+| **OpenClaw**     | web-based           | Built-in agent    | TradioRoute    |
 
 ---
 
-## Step 1 — Get an OmniRoute API Key
+## Step 1 — Get an TradioRoute API Key
 
-1. Open the OmniRoute dashboard → **API Manager** (`/dashboard/api-manager`)
+1. Open the TradioRoute dashboard → **API Manager** (`/dashboard/api-manager`)
 2. Click **Create API Key**
 3. Give it a name (e.g. `cli-tools`) and select all permissions
 4. Copy the key — you'll need it for every CLI below

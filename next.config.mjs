@@ -27,6 +27,7 @@ const nextConfig = {
     "stream",
     "buffer",
     "util",
+    "wreq-js",
   ],
   transpilePackages: ["@omniroute/open-sse"],
   allowedDevOrigins: ["localhost", "127.0.0.1", "192.168.*"],
@@ -74,6 +75,7 @@ const nextConfig = {
         "stream",
         "buffer",
         "util",
+        "wreq-js",
       ]);
 
       const prev = config.externals ?? [];

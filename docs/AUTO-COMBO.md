@@ -1,4 +1,4 @@
-# OmniRoute Auto-Combo Engine
+# TradioRoute Auto-Combo Engine
 
 > Self-managing model chains with adaptive scoring
 
